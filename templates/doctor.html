@@ -1,0 +1,138 @@
+
+{% extends "base.html" %}
+
+{% block title %}Medical Staff | Meridian Hospital{% endblock %}
+{% block breadcrumb %}Medical staff / Profile{% endblock %}
+
+{% block content %}
+<div class="back-row">
+    <a href="{{ url_for('dashboard') }}" class="back-link">← Overview</a>
+</div>
+
+<section class="profile-heading">
+    <div class="large-avatar doctor-large">✚</div>
+    <div class="profile-title">
+        <div class="eyebrow">MEDICAL STAFF DIRECTORY</div>
+        <h1>{{ doctor['name'] }}</h1>
+        <p class="muted">
+            {{ doctor['designation'] }} · {{ doctor['department'] }}
+        </p>
+        <span class="reference-text">Staff ID: {{ doctor['id'] }}</span>
+    </div>
+    <span class="status-badge">Staff profile</span>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>Recent shared documents</h2>
+            <p class="muted">
+                Documents shared by this department
+            </p>
+        </div>
+        <span class="count-badge">{{ documents|length }} documents</span>
+    </div>
+
+    <div class="document-list">
+        {% for document in documents %}
+        <article class="document-row">
+            <div class="file-icon">
+                {% if document['filename'].endswith('.pdf') %}
+                    PDF
+                {% else %}
+                    TXT
+                {% endif %}
+            </div>
+
+            <div class="document-info">
+                <strong>{{ document['title'] }}</strong>
+                <small>
+                    {{ document['filename'] }}
+                    · Share ID: {{ document['share_id'] }}
+                </small>
+            </div>
+
+            <span class="status-badge">Shared</span>
+
+            <a class="button button-secondary"
+               href="{{ url_for('get_shared_document',
+                                share_id=document['share_id']) }}">
+                Open
+            </a>
+
+            <button class="button button-primary"
+                    type="button"
+                    onclick='openShareEditor(
+                        {{ document['share_id'] }},
+                        {{ document['expiry'] | tojson }}
+                    )'>
+                Edit expiry
+            </button>
+        </article>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-symbol">▤</div>
+            <strong>No shared documents</strong>
+            <p class="muted">There are no documents to display.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel access-panel">
+    <div class="panel-header">
+        <div>
+            <h2>Sharing policy</h2>
+            <p class="muted">
+                Shared documents have configurable expiration dates.
+            </p>
+        </div>
+    </div>
+    <p class="muted">
+        Changes to a share's settings are saved immediately.
+    </p>
+</section>
+
+<div id="share-modal" class="modal-overlay" hidden>
+    <section class="modal-card">
+        <div class="modal-heading">
+            <div>
+                <div class="eyebrow">DOCUMENT SHARING</div>
+                <h2>Edit share settings</h2>
+            </div>
+            <button class="modal-close" type="button"
+                    onclick="closeShareEditor()">×</button>
+        </div>
+
+        <p class="muted">
+            Set when this document share expires.
+        </p>
+
+        <form id="share-form">
+            <input id="share-id" type="hidden">
+
+            <label for="share-expiry">Expiration date</label>
+            <input id="share-expiry" type="date" required>
+
+            <div id="share-message" class="form-message" hidden></div>
+
+            <div class="modal-actions">
+                <button class="button button-secondary" type="button"
+                        onclick="closeShareEditor()">Cancel</button>
+                <button class="button button-primary" type="submit">
+                    Save changes
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<!--
+Sharing API:
+The previous document-sharing service supported document reassignment using document_id.
+The current interface only exposes expiry editing.
+Check which fields the share update endpoint accepts.
+-->
+
+<script src="{{ url_for('static', filename='js/portal.js') }}"></script>
+{% endblock %}

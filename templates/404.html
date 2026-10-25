@@ -1,0 +1,20 @@
+
+{% extends "base.html" %}
+
+{% block title %}Page not found | Meridian Hospital{% endblock %}
+{% block breadcrumb %}Not found{% endblock %}
+
+{% block content %}
+<section class="error-page">
+    <div class="error-icon">?</div>
+    <div class="eyebrow">ERROR 404</div>
+    <h1>Record not found</h1>
+    <p class="muted">
+        The requested record could not be located in the directory.
+    </p>
+    <a href="{{ url_for('dashboard') }}"
+       class="button button-primary">
+        Return to overview
+    </a>
+</section>
+{% endblock %}

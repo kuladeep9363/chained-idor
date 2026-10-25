@@ -1,0 +1,115 @@
+
+{% extends "base.html" %}
+
+{% block title %}Overview | Meridian Hospital{% endblock %}
+{% block breadcrumb %}Overview{% endblock %}
+
+{% block content %}
+<section class="welcome-row">
+    <div>
+        <div class="eyebrow">SUNDAY, OCTOBER 25 · STAFF WORKSPACE</div>
+        <h1>Good morning, Alex <span>👋</span></h1>
+        <p class="muted">
+            Here is the latest overview of today's hospital activity.
+        </p>
+    </div>
+    <div class="role-chip">
+        <span class="status-dot"></span>
+        Junior Receptionist
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <div class="stat-heading">
+            Today's patients <span class="stat-icon blue">♙</span>
+        </div>
+        <div class="stat-number">{{ patients|length }}</div>
+        <div class="stat-foot">Registered in the directory</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-heading">
+            Medical departments <span class="stat-icon purple">✚</span>
+        </div>
+        <div class="stat-number">03</div>
+        <div class="stat-foot">Currently listed</div>
+    </article>
+    <article class="stat-card">
+        <div class="stat-heading">
+            Portal status <span class="stat-icon green">✓</span>
+        </div>
+        <div class="stat-number status-number">Operational</div>
+        <div class="stat-foot">Internal systems available</div>
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>Today's Patients</h2>
+            <p class="muted">Patient directory and appointment overview</p>
+        </div>
+        <span class="count-badge">{{ patients|length }} records</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>PATIENT</th>
+                    <th>REFERENCE</th>
+                    <th>ASSIGNED DOCTOR</th>
+                    <th>STATUS</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr>
+                    <td>
+                        <a class="patient-name"
+                           href="{{ url_for('patient_profile',
+                                            patient_uuid=patient['uuid']) }}">
+                            <span class="patient-avatar">
+                                {{ patient['name'].split() | map('first') | join | upper }}
+                            </span>
+                            <span>{{ patient['name'] }}</span>
+                        </a>
+                    </td>
+                    <td>
+                        <span class="reference-text">
+                            {{ patient['uuid'][:8] }}…
+                        </span>
+                    </td>
+                    <td>Doctor #{{ patient['doctor_id'] }}</td>
+                    <td><span class="status-badge">Registered</span></td>
+                    <td>
+                        <a class="text-link"
+                           href="{{ url_for('patient_profile',
+                                            patient_uuid=patient['uuid']) }}">
+                            View <span>→</span>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel-note">
+        <span class="info-icon">i</span>
+        Patient information is intended for authorized staff only.
+    </div>
+</section>
+
+<section class="notice-card">
+    <div class="notice-symbol">✦</div>
+    <div>
+        <strong>Staff workspace</strong>
+        <p>
+            Use the directory to review patient records and locate
+            assigned medical staff.
+        </p>
+    </div>
+</section>
+{% endblock %}

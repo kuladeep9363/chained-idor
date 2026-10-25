@@ -1,0 +1,4 @@
+Research Notes
+Department: Cardiology
+Status: Internal review
+This file contains sample training data.
