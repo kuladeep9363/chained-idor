@@ -1,4 +1,0 @@
-October Migration Note
-
-The Internal Audit Report was migrated to document reference 91.
-Its report contains the location of the October backup archive.
