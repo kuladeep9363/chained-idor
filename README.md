@@ -1,253 +1,197 @@
-ByteForge Technologies --- Employee Portal CTF
-A beginner-friendly Web Exploitation challenge demonstrating
-client-side trust and Base64 cookie tampering. The application uses
-Flask and runs directly on port `5000`; Nginx is not required.
-> \*\*Training use only:\*\* This application is intentionally vulnerable.
-> Run it only on localhost or an isolated CTF network. Do not expose it
-> to the public internet.
-1. Challenge overview
-When a visitor opens the portal, the app automatically issues an
-employee cookie. There is no login form and no username/password to
-change.
-The cookie contains a Base64-encoded role:
-``` text
-auth=cm9sZT11c2VyCg==
+Meridian Hospital Internal Portal --- Setup Guide
+This guide explains how to run the intentionally vulnerable Flask CTF
+application on another computer.
+> **Lab safety:** This application intentionally contains insecure
+> access-control behavior for cybersecurity training. Run it only on a
+> machine or network you control. Keep it bound to localhost unless you
+> deliberately configure an isolated training environment.
+1. Requirements
+Python 3.10 or newer recommended
+`pip`
+Git, if cloning the project from a repository
+Check your installation:
+``` bash
+python --version
+python -m pip --version
+git --version
 ```
-Decoded value:
-``` text
-role=user
+On some Linux systems, use `python3` instead of `python`.
+2. Get the project files
+Option A --- Clone the repository
+Replace the example URL with the actual repository URL:
+``` bash
+git clone <REPOSITORY_URL>
+cd <REPOSITORY_FOLDER>
 ```
-Participants can change the role to `admin`, Base64-encode it, and
-replace the cookie:
+Option B --- Copy the project folder
+Copy the entire project directory to the target computer. Preserve the
+relative paths of the Python files, templates, static assets, documents,
+and backups.
+The project should have a structure similar to:
 ``` text
-auth=cm9sZT1hZG1pbgo=
-```
-The modified cookie should reveal the Administrator Dashboard and the
-challenge flag:
-``` text
-FLAG{client\_side\_trust\_is\_dangerous}
-```
-Base64 is encoding, not encryption or a signature. The vulnerability is
-that the server trusts a role supplied by the browser.
-Challenge objectives
-Find the HTTP service and identify ByteForge Technologies in the
-response headers.
-Inspect and decode the `auth` cookie.
-Modify the role from `user` to `admin`.
-Access the administrator dashboard and profile.
-Confirm that malformed cookies never grant administrator access.
-2. Application features
-ByteForge Technologies branding
-Employee home page
-Employee dashboard
-Employee profile
-Company announcements
-HR documents page
-Administrator dashboard with flag
-Administrator-specific profile information
-Automatic employee cookie; no login portal
-HTTP identification headers for Nmap service reconnaissance
-3. Project structure
-Create or obtain the project with the following layout:
-``` text
-employee-portal/
+hospital/
 ├── app.py
+├── database.py
+├── generate_assets.py
 ├── requirements.txt
-├── Dockerfile
+├── hospital.db                 # created by database initialization(database.py)
 ├── templates/
 │   ├── base.html
-│   ├── index.html
 │   ├── dashboard.html
-│   ├── profile.html
-│   ├── announcements.html
-│   ├── documents.html
-│   └── error.html
-└── static/
-    └── styles.css
+│   ├── patient.html
+│   ├── doctor.html
+│   └── 404.html
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── portal.js
+├── documents/                   # created by generate_assets.py
+│   ├── research_notes.txt
+│   ├── patient_summary.txt
+│   ├── monthly_review.txt
+│   └── audit_report.pdf
+└── backups/
+    ├── flag.txt
+    └── october_backup.zip
 ```
-The files listed above are the application source files. A README alone
-does not contain the app's implementation, so make sure these files are
-included when sharing the project with another person.
-4. Requirements
-Choose either a native Python installation or Docker.
-Option A --- Python
-Python 3.10 or later (Python 3.12 is a good choice)
-`pip`
-A terminal
-Option B --- Docker
-Docker Engine or Docker Desktop
-No database, Nginx, or external service is required.
-5. Run locally with Python
-Linux / Kali Linux / macOS
-Open a terminal in the `employee-portal` directory:
+Some generated files may not exist until you run `generate_assets.py`.
+Keep any additional files that are present in your actual project.
+3. Create and activate a virtual environment
+Run these commands from the project root.
+Linux / Kali
 ``` bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python app.py
 ```
+If creating the environment fails because the venv package is missing,
+install your distribution's Python venv package, then retry.
 Windows PowerShell
-Open PowerShell in the `employee-portal` directory:
 ``` powershell
 py -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
+.\.venv\Scripts\Activate.ps1
+```
+If PowerShell blocks activation, you can use Command Prompt instead:
+``` bat
+.venv\Scripts\activate.bat
+```
+4. Install dependencies
+With the virtual environment activated:
+``` bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+```
+If `requirements.txt` is missing, obtain it from the project source
+rather than guessing the dependency versions. Flask is the core web
+dependency; PDF generation may require an additional package depending
+on the implementation of `generate_assets.py`.
+5. Generate the challenge assets and database
+From the project root, run:
+``` bash
+python generate_assets.py
+python database.py
+```
+These scripts should create the challenge documents/archive and
+initialize `hospital.db` with the seeded records. Run them from the
+project root so the relative asset paths match the expected layout.
+The seeded challenge records include:
+Doctors with IDs `17`, `18`, and `19`
+Patients linked to those doctors
+Documents `51`, `52`, `53`, and `91`
+Shares `908`, `909`, and `910`
+Important: existing database files
+The database uses `INSERT OR IGNORE` for seed rows. Re-running
+`database.py` will not overwrite rows that already exist.
+For a fresh training setup, stop the app and back up or remove the
+existing `hospital.db` before initializing it again. Deleting the
+database resets all local challenge data, so do this only when you do
+not need to preserve it.
+If you need to preserve existing data, use a targeted SQL update instead
+of deleting the database.
+6. Start the application
+Keep the virtual environment activated and run:
+``` bash
 python app.py
 ```
-If PowerShell blocks virtual-environment activation, open Command Prompt
-and use:
-``` bat
-py -m venv .venv
-.venv\\Scripts\\activate.bat
-python -m pip install -r requirements.txt
-python app.py
-```
-Open the portal
-On the same computer, visit:
+Open this address in a browser on the same computer:
 ``` text
-http://127.0.0.1:5000
+http://127.0.0.1:5000/
 ```
-To access it from another machine on the same isolated lab network, use
-the host computer's reachable IP address:
-``` text
-http://<HOST\_IP>:5000
-```
-The Flask application listens on `0.0.0.0:5000` to permit network
-access. Allow port `5000` through the firewall only when required for
-the isolated lab.
-6. Run with Docker
-Build the image from the directory containing the Dockerfile:
-``` bash
-docker build -t byteforge-employee-portal .
-```
-Run the container:
-``` bash
-docker run --rm --name byteforge-portal -p 5000:5000 byteforge-employee-portal
-```
-Open `http://127.0.0.1:5000`.
-Stop the container with `Ctrl+C`. The `--rm` option removes the stopped
-container; the image remains available.
-7. Verify the cookie vulnerability
-Open the portal in a browser.
-Open Developer Tools (`F12`) and find the site's cookies under
-Application/Storage → Cookies.
-Locate the `auth` cookie. The initial value should be:
-    `text cm9sZT11c2VyCg==`
-Decode it with a local Base64 decoder or a terminal:
-    `bash printf 'cm9sZT11c2VyCg==' | base64 -d`
-Expected output: `role=user` followed by a newline.
-Replace the cookie value with:
-    `text cm9sZT1hZG1pbgo=`
-Navigate to `/dashboard` or refresh the dashboard. The Administrator
-Dashboard and flag should appear.
-Open `/profile`. The profile should now show the HR Administrator
-role, Human Resources department, and administrative access level.
-Test with curl
-Run these commands on the computer hosting the app, or replace
-`127.0.0.1` with the appropriate host address.
-Employee cookie:
-``` bash
-curl -i --cookie 'auth=cm9sZT11c2VyCg==' \\
-  http://127.0.0.1:5000/dashboard
-```
-Expected: Employee Dashboard.
-Modified administrator cookie:
-``` bash
-curl -i --cookie 'auth=cm9sZT1hZG1pbgo=' \\
-  http://127.0.0.1:5000/dashboard
-```
-Expected: Administrator Dashboard and
-`FLAG{client\_side\_trust\_is\_dangerous}`.
-Malformed cookie:
-``` bash
-curl -i --cookie 'auth=YWJjMTIz' \\
-  http://127.0.0.1:5000/dashboard
-```
-Expected: HTTP `401` with an authentication error. It must not reveal
-the flag.
-8. Secondary objective --- Nmap
-From a different machine on the same lab network, scan the host running
-the application:
-``` bash
-nmap -sV -p 5000 --script http-title,http-headers <HOST\_IP>
-```
-The application adds these HTTP response headers:
-``` http
-Server: ByteForge Technologies Employee Portal
-X-Company: ByteForge Technologies
-```
-The HTTP title should also identify the Employee Portal. Nmap's exact
-service/product label varies with its version and probe results; the
-`http-headers` script is the most direct way to verify the custom
-company header.
-If the scan fails:
-Confirm the Flask app is running.
-Check that port `5000` is reachable from the scanning machine.
-Check the host firewall and container port mapping.
-Ensure both machines are on a network where they are permitted to
-communicate.
-9. Expected behavior checklist
+The application is intended to run on `127.0.0.1:5000`. Do not change it
+to a public network interface unless you have deliberately isolated the
+challenge and understand the risks.
+To stop the server, press `Ctrl+C` in the terminal running Flask.
+7. Challenge flow
+The app is designed as a chained web-security exercise. Depending on the
+version of the project, the intended discovery path is:
+Explore the dashboard and patient records.
+Inspect doctor records and the available document shares.
+Read the monthly review document for the migration clue identifying
+document reference `91`.
+Inspect how the share-expiry update request works.
+Observe that the intentionally vulnerable share-update behavior may
+allow a document reference to be changed.
+Open the affected share to access the internal audit report.
+Read the report to discover the backup archive location.
+Retrieve the archive in the local lab and inspect its sample flag.
+Use only the seeded records and the local lab instance. The intended
+exploit behavior is deliberately insecure and should not be copied into
+a production application.
+8. Share reset behavior
+The current training version may reset the three seeded share records
+when the backup route is requested. The intended baseline mapping is:
+    Share ID   Baseline document ID
 ---
-Request / state                     Expected behavior
----
-First visit to `/` without a cookie Portal loads and issues an employee
-cookie
-Valid `role=user` cookie            Employee pages and Employee
-Dashboard
-Valid `role=admin` cookie           Administrator Dashboard and flag
-`role=admin` cookie on `/profile`   HR Administrator profile and
-administrative access details
-Malformed or random cookie on a     Authentication error; no elevated
-protected route                     access
-Nmap HTTP header scan               `ByteForge Technologies` appears in
-the response headers
-10. Troubleshooting
-`ModuleNotFoundError: No module named 'flask'`
+       `908`                   `51`
+       `909`                   `52`
+       `910`                   `53`
+
+If this reset logic is enabled in `app.py`, it uses the project's
+`get_db()` helper from `database.py`. The database table's key column is
+named `share_id`, not `id`.
+The reset is global to the local SQLite database. It does not isolate
+concurrent participants; use separate challenge instances or per-team
+databases for a multi-player deployment.
+9. Troubleshooting
+`ModuleNotFoundError: No module named 'flask'` (or another dependency)
 Activate the virtual environment and run:
 ``` bash
 python -m pip install -r requirements.txt
 ```
-Port 5000 is already in use
-Stop the other process using port `5000`, or change the port in the
-`app.run(...)` line and update the browser URL, curl commands, Docker
-mapping, and Nmap command accordingly.
-The cookie does not change to admin
-Confirm the entire cookie value was replaced, without extra spaces
-or quotes.
-Refresh `/dashboard` after changing the cookie.
-Make sure you are editing the cookie for the correct host and port.
-Confirm the value is exactly `cm9sZT1hZG1pbgo=`.
-The admin profile is not changing
-Check that the `/profile` route calls `get\_role()` and passes the
-role-dependent template values (`role`, `employee\_id`, `department`, and
-`access\_level`). Check that `templates/profile.html` renders those
-variables.
-A malformed cookie reveals the flag
-The role parser must accept only the exact recognized values
-`role=user\\\\n` and `role=admin\\\\n`. Unknown, malformed, or undecodable
-values must return no role and must never default to `admin`.
-11. Important implementation notes
-The cookie is deliberately unsigned and client-controlled. This is
-the intended challenge vulnerability.
-`HttpOnly` prevents ordinary page JavaScript from reading the
-cookie; it does not prevent the user from modifying it through
-browser developer tools or an intercepting proxy.
-The invalid-cookie check is a required challenge behavior. Invalid
-values must not receive administrator privileges.
-This is a deliberately vulnerable lab, not a production
-authentication design. A real application should derive
-authorization from trusted server-side state or use a properly
-validated, signed session mechanism.
-Keep the challenge on an isolated CTF network and do not reuse real
-credentials or secrets.
-12. Quick start summary
-``` bash
-# From the project directory
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python app.py
+`NameError: name 'get_db' is not defined`
+Make sure `app.py` imports the helper from `database.py`. For example:
+``` python
+from database import get_db
 ```
-Then open `http://127.0.0.1:5000` and begin testing the `auth` cookie.
+If `app.py` already imports other functions from `database.py`, add
+`get_db` to that existing import.
+`NameError: name 'sqlite3' is not defined`
+If the route calls `sqlite3` directly, `app.py` must import it:
+``` python
+import sqlite3
+```
+If you use the existing `get_db()` helper instead, you do not need to
+call `sqlite3` directly in `app.py`.
+A document or ZIP returns `404`
+Check that:
+`generate_assets.py` completed successfully.
+You started commands from the project root.
+The expected file exists under `documents/` or `backups/`.
+The paths used by the application match the actual filenames.
+A renamed document still displays its old name
+The seed script uses `INSERT OR IGNORE`, so it does not update an
+existing document row. Update the relevant row in SQLite or recreate the
+local database if it is safe to reset the data.
+Port `5000` is already in use
+Stop the other local process using the port or change the Flask port
+consistently in your local development configuration.
+10. Before sharing the project
+Include `requirements.txt`, all templates/static assets, and the
+asset-generation script.
+Ensure generated assets can be recreated on a clean machine.
+Do not commit `.venv/`, Python cache directories, or personal
+secrets.
+Do not include real patient information, credentials, or production
+data.
+Explain clearly that the application is intentionally vulnerable.
+Keep the service private or isolated during training.
