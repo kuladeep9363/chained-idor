@@ -207,59 +207,8 @@ The reset is global to the local SQLite database. It does not isolate
 concurrent participants; use separate challenge instances or per-team
 databases for a multi-player deployment.
 
-## 9. Troubleshooting
 
-### `ModuleNotFoundError: No module named 'flask'` (or another dependency)
-
-Activate the virtual environment and run:
-
-``` bash
-python -m pip install -r requirements.txt
-```
-
-### `NameError: name 'get_db' is not defined`
-
-Make sure `app.py` imports the helper from `database.py`. For example:
-
-``` python
-from database import get_db
-```
-
-If `app.py` already imports other functions from `database.py`, add
-`get_db` to that existing import.
-
-### `NameError: name 'sqlite3' is not defined`
-
-If the route calls `sqlite3` directly, `app.py` must import it:
-
-``` python
-import sqlite3
-```
-
-If you use the existing `get_db()` helper instead, you do not need to
-call `sqlite3` directly in `app.py`.
-
-### A document or ZIP returns `404`
-
-Check that:
-
--   `generate_assets.py` completed successfully.
--   You started commands from the project root.
--   The expected file exists under `documents/` or `backups/`.
--   The paths used by the application match the actual filenames.
-
-### A renamed document still displays its old name
-
-The seed script uses `INSERT OR IGNORE`, so it does not update an
-existing document row. Update the relevant row in SQLite or recreate the
-local database if it is safe to reset the data.
-
-### Port `5000` is already in use
-
-Stop the other local process using the port or change the Flask port
-consistently in your local development configuration.
-
-## 10. Before sharing the project
+## 9. Before sharing the project
 
 -   Include `requirements.txt`, all templates/static assets, and the
     asset-generation script.
