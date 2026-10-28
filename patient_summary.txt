@@ -1,0 +1,2 @@
+Patient Summary
+This document contains synthetic training information.
