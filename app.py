@@ -6,9 +6,19 @@ from flask import (
     send_file, session, redirect, url_for, abort
 )
 
-from database import get_db, init_db
 
 BASE_DIR = Path(__file__).resolve().parent
+DB_PATH = BASE_DIR / "hospital.db"
+# DB_PATH = Path("/var/lib/hackshield/service6/hospital.db")
+FLAG_PATH = Path("/opt/flag/flag6")
+
+# from database import get_db, init_db
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
 
 app = Flask(__name__)
 app.secret_key = "local-ctf-development-key-change-before-use"
